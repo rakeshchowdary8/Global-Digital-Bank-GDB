@@ -5,7 +5,7 @@ public class Account {
     private static final int MIN_PIN = 1000;
     private static final int MAX_PIN = 9999;
 
-    private final int accNumber;
+    private  int accNumber;
     private String name;
     private int age;
     private double balance;
@@ -160,4 +160,3 @@ class SavingsAccount extends Account{
     super("Savings",balance);
    }
 }
-
