@@ -152,11 +152,3 @@ public class Account {
         return status;
     }
 }
-
-class SavingsAccount extends Account{
-    private double minBalance = 1000;
-    private double interestRate = 0.04;
-   public SavingsAccount(double balance){
-    super("Savings",balance);
-   }
-}
