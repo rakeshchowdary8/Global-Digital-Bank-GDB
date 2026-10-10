@@ -1,10 +1,13 @@
 package com.gdb.domain;
 
 import com.gdb.exceptions.*;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-public abstract class AbstractAccount implements IAccount {
+public abstract class AbstractAccount implements IAccount, Serializable {
+    private static final long serialVersionUID = 1L;
+
     protected static final int MIN_AGE = 18;
     protected static final int MIN_PIN = 1000;
     protected static final int MAX_PIN = 9999;
@@ -297,5 +300,45 @@ public abstract class AbstractAccount implements IAccount {
 
     public String getPin() {
         return pin;
+    }
+
+    // 📝 STEP 7 — depositWithTransaction(double amount)
+    public Transaction depositWithTransaction(double amount) throws AccountException {
+        deposit(amount);
+        return new Transaction(
+            Transaction.generateId(),
+            java.time.LocalDateTime.now(),
+            this.accountNumber,
+            TransactionType.DEPOSIT,
+            amount,
+            this.balance,
+            "SUCCESS",
+            "Deposit of Rs. " + amount,
+            0,
+            0
+        );
+    }
+
+    // 📝 STEP 8 — withdrawWithTransaction(double amount, int pin)
+    public Transaction withdrawWithTransaction(double amount, int pin) throws AccountException {
+        withdraw(amount, pin);
+        return new Transaction(
+            Transaction.generateId(),
+            java.time.LocalDateTime.now(),
+            this.accountNumber,
+            TransactionType.WITHDRAW,
+            amount,
+            this.balance,
+            "SUCCESS",
+            "Withdrawal of Rs. " + amount,
+            0,
+            0
+        );
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Account #%d | %s (%d yrs, Tenure: %d yrs) | %s | Rs. %s | %s",
+                accountNumber, (name != null ? name : "N/A"), age, tenureYears, accountType, balance, status);
     }
 }

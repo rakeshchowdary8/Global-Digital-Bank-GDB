@@ -2,6 +2,7 @@ package com.gdb.service;
 
 import com.gdb.domain.*;
 import com.gdb.exceptions.*;
+import java.time.LocalDateTime;
 
 public class TransferService {
 
@@ -54,4 +55,26 @@ public class TransferService {
     public static void transfer(IAccount from, IAccount to, double amount, int pin) throws AccountException {
         transfer(from, to, amount, String.valueOf(pin));
     }
+
+    // 📝 STEP 9 — transferWithTransaction(from, to, amount, pin)
+    public static Transaction transferWithTransaction(IAccount from, IAccount to, double amount, int pin) throws AccountException {
+        transfer(from, to, amount, pin);
+        return new Transaction(
+            Transaction.generateId(),
+            LocalDateTime.now(),
+            from.getAccountNumber(),
+            TransactionType.TRANSFER,
+            amount,
+            from.getBalance(),
+            "SUCCESS",
+            "Transfer of Rs. " + amount + " to Account #" + to.getAccountNumber(),
+            from.getAccountNumber(),
+            to.getAccountNumber()
+        );
+    }
+
+    public static Transaction transferWithTransaction(IAccount from, IAccount to, double amount, String pin) throws AccountException {
+        return transferWithTransaction(from, to, amount, Integer.parseInt(pin));
+    }
 }
+
