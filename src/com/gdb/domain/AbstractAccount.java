@@ -1,6 +1,8 @@
 package com.gdb.domain;
 
 import com.gdb.exceptions.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public abstract class AbstractAccount implements IAccount {
     protected static final int MIN_AGE = 18;
@@ -15,9 +17,15 @@ public abstract class AbstractAccount implements IAccount {
     protected String status;
     protected String pin;
 
+    // STEP 2.1 — daily tracking fields and tenure
+    protected int tenureYears = 0;
+    protected double dailyTransferTotal = 0.0;
+    protected LocalDateTime lastTransferDate = LocalDateTime.now();
+
     public AbstractAccount() {
         this.status = "Active";
         this.pin = "1234";
+        this.lastTransferDate = LocalDateTime.now();
     }
 
     public AbstractAccount(String accountType, double balance) {
@@ -25,6 +33,7 @@ public abstract class AbstractAccount implements IAccount {
         this.balance = balance;
         this.status = "Active";
         this.pin = "1234";
+        this.lastTransferDate = LocalDateTime.now();
     }
 
     public AbstractAccount(int accountNumber, String name, double balance, String accountType) {
@@ -34,6 +43,7 @@ public abstract class AbstractAccount implements IAccount {
         this.accountType = accountType;
         this.status = "Active";
         this.pin = "1234";
+        this.lastTransferDate = LocalDateTime.now();
     }
 
     public AbstractAccount(int accountNumber, String name, int age, double balance, String accountType) throws IllegalArgumentException {
@@ -47,6 +57,7 @@ public abstract class AbstractAccount implements IAccount {
         this.accountType = accountType;
         this.status = "Active";
         this.pin = "1234";
+        this.lastTransferDate = LocalDateTime.now();
     }
 
     // Concrete Template Method for Withdrawal
@@ -82,6 +93,10 @@ public abstract class AbstractAccount implements IAccount {
     // Primitive hook for Template Method Pattern
     protected abstract void processDebit(double amount) throws AccountException;
 
+    // canWithdraw contract
+    @Override
+    public abstract boolean canWithdraw(double amount);
+
     // Shared concrete deposit method
     @Override
     public void deposit(double amount) throws InvalidAmountException, InactiveAccountException {
@@ -101,10 +116,12 @@ public abstract class AbstractAccount implements IAccount {
         return validatePin(String.valueOf(pin));
     }
 
+    @Override
     public boolean verifyPin(int pin) {
         return validatePin(pin);
     }
 
+    @Override
     public boolean verifyPin(String pin) {
         return validatePin(pin);
     }
@@ -127,7 +144,6 @@ public abstract class AbstractAccount implements IAccount {
         this.pin = pin;
     }
 
-    // Shared concrete changePin method
     public void changePin(String oldPin, String newPin) throws InvalidPinException, IllegalArgumentException {
         if (!validatePin(oldPin)) {
             throw new InvalidPinException("Incorrect old PIN.");
@@ -142,12 +158,11 @@ public abstract class AbstractAccount implements IAccount {
         changePin(String.valueOf(oldPin), String.valueOf(newPin));
     }
 
-    // Shared concrete displayAccountInfo method
     @Override
     public void displayAccountInfo() {
         System.out.println(String.format(
-            "Account #%d | %s (%d yrs) | %s | Rs %.1f | %s | PIN: %s",
-            accountNumber, (name != null ? name : "N/A"), age, accountType, balance, status, (pin != null ? "Yes" : "No")
+            "Account #%d | %s (%d yrs, Tenure: %d yrs) | %s | Rs. %.1f | %s",
+            accountNumber, (name != null ? name : "N/A"), age, tenureYears, accountType, balance, status
         ));
     }
 
@@ -171,7 +186,57 @@ public abstract class AbstractAccount implements IAccount {
         this.status = "Active";
     }
 
+    // STEP 3 — Account.getDailyTransferLimit()
+    public double getDailyTransferLimit() {
+        return AccountRulesEngine.getInstance().getDailyTransferLimit(getAccountType(), getTenureYears());
+    }
+
+    // STEP 4 — Account.getRemainingDailyTransferLimit()
+    public double getRemainingDailyTransferLimit() {
+        resetDailyTransferIfNeeded();
+        return Math.max(0.0, getDailyTransferLimit() - dailyTransferTotal);
+    }
+
+    // STEP 5 — Account.canTransfer(double amount)
+    public boolean canTransfer(double amount) {
+        resetDailyTransferIfNeeded();
+        return (dailyTransferTotal + amount) <= getDailyTransferLimit();
+    }
+
+    // STEP 6 — Account.updateDailyTransferTotal(double amount)
+    public void updateDailyTransferTotal(double amount) {
+        resetDailyTransferIfNeeded();
+        this.dailyTransferTotal += amount;
+        this.lastTransferDate = LocalDateTime.now();
+    }
+
+    // STEP 7 — Account.resetDailyTransferIfNeeded()
+    public void resetDailyTransferIfNeeded() {
+        if (!this.lastTransferDate.toLocalDate().equals(LocalDate.now())) {
+            this.dailyTransferTotal = 0.0;
+            this.lastTransferDate = LocalDateTime.now();
+        }
+    }
+
     // Getters and Setters
+    public double getDailyTransferTotal() {
+        return dailyTransferTotal;
+    }
+
+    public LocalDateTime getLastTransferDate() {
+        return lastTransferDate;
+    }
+
+    @Override
+    public int getTenureYears() {
+        return tenureYears;
+    }
+
+    @Override
+    public void setTenureYears(int tenureYears) {
+        this.tenureYears = tenureYears;
+    }
+
     @Override
     public int getAccountNumber() {
         return accountNumber;

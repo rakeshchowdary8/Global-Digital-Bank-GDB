@@ -24,9 +24,19 @@ public class FixedDepositAccount extends AbstractAccount {
         super(accountNumber, name, age, balance, "FIXED_DEPOSIT");
     }
 
+    public FixedDepositAccount(int accountNumber, String name, int age, double balance, int tenureYears) {
+        super(accountNumber, name, age, balance, "FIXED_DEPOSIT");
+        this.tenureYears = tenureYears;
+    }
+
     @Override
     protected void processDebit(double amount) throws AccountException {
         throw new AccountException("Premature withdrawals are not permitted on Fixed Deposit accounts before maturity.");
+    }
+
+    @Override
+    public boolean canWithdraw(double amount) {
+        return false;
     }
 
     public double calculateMaturityAmount() {

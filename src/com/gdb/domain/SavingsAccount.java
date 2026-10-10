@@ -8,6 +8,14 @@ public class SavingsAccount extends AbstractAccount {
 
     public SavingsAccount(double balance) {
         super("SAVINGS", balance);
+        this.minBalance = 1000.0;
+        this.interestRate = 4.0;
+    }
+
+    public SavingsAccount(double balance, int tenureYears) {
+        super("SAVINGS", balance);
+        this.tenureYears = tenureYears;
+        applyDynamicRules();
     }
 
     public SavingsAccount(double balance, double minBalance, double interestRate) {
@@ -18,10 +26,31 @@ public class SavingsAccount extends AbstractAccount {
 
     public SavingsAccount(int accountNumber, String name, double balance) {
         super(accountNumber, name, balance, "SAVINGS");
+        this.minBalance = 1000.0;
+        this.interestRate = 4.0;
     }
 
     public SavingsAccount(int accountNumber, String name, int age, double balance) {
         super(accountNumber, name, age, balance, "SAVINGS");
+        this.minBalance = 1000.0;
+        this.interestRate = 4.0;
+    }
+
+    public SavingsAccount(int accountNumber, String name, int age, double balance, int tenureYears) {
+        super(accountNumber, name, age, balance, "SAVINGS");
+        this.tenureYears = tenureYears;
+        applyDynamicRules();
+    }
+
+    private void applyDynamicRules() {
+        this.minBalance = AccountRulesEngine.getSavingsMinBalance(this.tenureYears);
+        this.interestRate = AccountRulesEngine.getSavingsInterestRate(this.tenureYears);
+    }
+
+    @Override
+    public void setTenureYears(int tenureYears) {
+        super.setTenureYears(tenureYears);
+        applyDynamicRules();
     }
 
     @Override
@@ -32,6 +61,12 @@ public class SavingsAccount extends AbstractAccount {
             );
         }
         this.balance -= amount;
+    }
+
+    @Override
+    public boolean canWithdraw(double amount) {
+        if (amount <= 0) return false;
+        return (this.balance - amount) >= this.minBalance;
     }
 
     public void applyInterest() {

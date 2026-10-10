@@ -43,6 +43,13 @@ public class Account extends AbstractAccount {
         this.balance -= amount;
     }
 
+    @Override
+    public boolean canWithdraw(double amount) {
+        if (amount <= 0) return false;
+        double minBal = getMinBalance();
+        return (this.balance - amount) >= minBal;
+    }
+
     private double getMinBalance() {
         return "Savings".equalsIgnoreCase(this.accountType) ? MIN_BALANCE_SAVINGS : MIN_BALANCE_CURRENT;
     }

@@ -22,6 +22,11 @@ public class CurrentAccount extends AbstractAccount {
         super(accountNumber, name, age, balance, "CURRENT");
     }
 
+    public CurrentAccount(int accountNumber, String name, int age, double balance, int tenureYears) {
+        super(accountNumber, name, age, balance, "CURRENT");
+        this.tenureYears = tenureYears;
+    }
+
     @Override
     protected void processDebit(double amount) throws InsufficientBalanceException {
         if (amount > (this.balance + this.overdraftLimit)) {
@@ -30,6 +35,12 @@ public class CurrentAccount extends AbstractAccount {
             );
         }
         this.balance -= amount;
+    }
+
+    @Override
+    public boolean canWithdraw(double amount) {
+        if (amount <= 0) return false;
+        return amount <= (this.balance + this.overdraftLimit);
     }
 
     public double getOverdraftLimit() {

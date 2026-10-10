@@ -17,4 +17,10 @@ public interface IAccount {
     void withdraw(double amount, int pin) throws AccountException;
     void withdraw(double amount) throws AccountException;
     void displayAccountInfo();
+
+    boolean canWithdraw(double amount);
+    boolean verifyPin(String pin);
+    boolean verifyPin(int pin);
+    int getTenureYears();
+    void setTenureYears(int tenureYears);
 }
