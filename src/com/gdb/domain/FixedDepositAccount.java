@@ -1,3 +1,7 @@
+package com.gdb.domain;
+
+import com.gdb.exceptions.*;
+
 public class FixedDepositAccount extends Account {
     private int tenureMonths = 12;
     private double interestRate = 6.5;
@@ -10,6 +14,16 @@ public class FixedDepositAccount extends Account {
         super("FIXED_DEPOSIT", balance);
         this.tenureMonths = tenureMonths;
         this.interestRate = interestRate;
+    }
+
+    @Override
+    public void withdraw(double amt, int pin) throws AccountException {
+        throw new AccountException("Premature withdrawals are not permitted on Fixed Deposit accounts before maturity.");
+    }
+
+    @Override
+    public void withdraw(double amt) throws AccountException {
+        throw new AccountException("Premature withdrawals are not permitted on Fixed Deposit accounts before maturity.");
     }
 
     public double calculateMaturityAmount() {

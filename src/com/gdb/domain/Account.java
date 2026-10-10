@@ -1,3 +1,6 @@
+package com.gdb.domain;
+import com.gdb.exceptions.*;
+
 public class Account {
     private static final double MIN_BALANCE_SAVINGS = 500.0;
     private static final double MIN_BALANCE_CURRENT = 1000.0;
@@ -8,10 +11,11 @@ public class Account {
     private  int accNumber;
     private String name;
     private int age;
-    private double balance;
+    protected double balance;
     private String accType;
-    private String status;
-    private Integer pin;
+
+    protected String status;
+    protected Integer pin;
 
     public Account(int accNumber, String name, int age, double balance, String accType) throws IllegalArgumentException {
         if (age < MIN_AGE) {
@@ -40,6 +44,7 @@ public class Account {
     public Account(String accType,double balance){
         this.accType = accType;
         this.balance = balance;
+        this.status = "Active";
     }
 
     public void deposit(double amt) throws InvalidAmountException, InactiveAccountException {
@@ -50,20 +55,40 @@ public class Account {
         }
 
         this.balance += amt;
-    }
+    }   
 
     public void withdraw(double amt, int pin)
             throws InvalidAmountException,
                    InsufficientBalanceException,
                    MinimumBalanceViolationException,
                    InactiveAccountException,
-                   InvalidPinException {
+                   InvalidPinException,
+                   AccountException {
 
         checkActive();
 
         if (this.pin == null || this.pin != pin) {
             throw new InvalidPinException("Incorrect PIN or PIN is not set.");
         }
+
+        if (amt <= 0) {
+            throw new InvalidAmountException("Withdraw amount must be greater than 0.");
+        }
+
+        if (amt > this.balance) {
+            throw new InsufficientBalanceException("Not enough balance for withdrawal.");
+        }
+
+        double minBal = getMinBalance();
+        if ((this.balance - amt) < minBal) {
+            throw new MinimumBalanceViolationException("Cannot withdraw: balance would drop below minimum " + minBal);
+        }
+
+        this.balance -= amt;
+    }
+
+    public void withdraw(double amt) throws AccountException {
+        checkActive();
 
         if (amt <= 0) {
             throw new InvalidAmountException("Withdraw amount must be greater than 0.");
@@ -110,7 +135,7 @@ public class Account {
         return this.pin != null;
     }
 
-    private void checkActive() throws InactiveAccountException {
+    protected void checkActive() throws InactiveAccountException {
         if (!"Active".equalsIgnoreCase(this.status)) {
             throw new InactiveAccountException("Cannot perform operation on an inactive account.");
         }
@@ -150,5 +175,13 @@ public class Account {
 
     public String getStatus() {
         return status;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
+    public Integer getPin() {
+        return pin;
     }
 }

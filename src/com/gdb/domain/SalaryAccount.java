@@ -1,3 +1,4 @@
+package com.gdb.domain;
 public class SalaryAccount extends Account {
     private String employerName;
     private int inactiveMonths;

@@ -1,3 +1,7 @@
+package com.gdb.domain;
+
+import com.gdb.exceptions.*;
+
 public class SavingsAccount extends Account {
     private double minBalance = 1000.0;
     private double interestRate = 4.0;
@@ -10,6 +14,32 @@ public class SavingsAccount extends Account {
         super("SAVINGS", balance);
         this.minBalance = minBalance;
         this.interestRate = interestRate;
+    }
+
+    @Override
+    public void withdraw(double amt, int pin)
+            throws InvalidAmountException,
+                   InsufficientBalanceException,
+                   MinimumBalanceViolationException,
+                   InactiveAccountException,
+                   InvalidPinException,
+                   AccountException {
+        if ((getBalance() - amt) < minBalance) {
+            throw new MinimumBalanceViolationException(
+                "Cannot withdraw: balance would drop below minimum balance of " + minBalance
+            );
+        }
+        super.withdraw(amt, pin);
+    }
+
+    @Override
+    public void withdraw(double amt) throws AccountException {
+        if ((getBalance() - amt) < minBalance) {
+            throw new MinimumBalanceViolationException(
+                "Cannot withdraw: balance would drop below minimum balance of " + minBalance
+            );
+        }
+        super.withdraw(amt);
     }
 
     public void applyInterest() {
