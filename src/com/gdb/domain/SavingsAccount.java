@@ -2,7 +2,7 @@ package com.gdb.domain;
 
 import com.gdb.exceptions.*;
 
-public class SavingsAccount extends Account {
+public class SavingsAccount extends AbstractAccount {
     private double minBalance = 1000.0;
     private double interestRate = 4.0;
 
@@ -16,30 +16,22 @@ public class SavingsAccount extends Account {
         this.interestRate = interestRate;
     }
 
-    @Override
-    public void withdraw(double amt, int pin)
-            throws InvalidAmountException,
-                   InsufficientBalanceException,
-                   MinimumBalanceViolationException,
-                   InactiveAccountException,
-                   InvalidPinException,
-                   AccountException {
-        if ((getBalance() - amt) < minBalance) {
-            throw new MinimumBalanceViolationException(
-                "Cannot withdraw: balance would drop below minimum balance of " + minBalance
-            );
-        }
-        super.withdraw(amt, pin);
+    public SavingsAccount(int accountNumber, String name, double balance) {
+        super(accountNumber, name, balance, "SAVINGS");
+    }
+
+    public SavingsAccount(int accountNumber, String name, int age, double balance) {
+        super(accountNumber, name, age, balance, "SAVINGS");
     }
 
     @Override
-    public void withdraw(double amt) throws AccountException {
-        if ((getBalance() - amt) < minBalance) {
+    protected void processDebit(double amount) throws MinimumBalanceViolationException, InsufficientBalanceException {
+        if ((this.balance - amount) < this.minBalance) {
             throw new MinimumBalanceViolationException(
                 "Cannot withdraw: balance would drop below minimum balance of " + minBalance
             );
         }
-        super.withdraw(amt);
+        this.balance -= amount;
     }
 
     public void applyInterest() {
@@ -49,6 +41,10 @@ public class SavingsAccount extends Account {
         } catch (InvalidAmountException | InactiveAccountException e) {
             System.err.println(e.getMessage());
         }
+    }
+
+    public void applyMonthlyInterest() {
+        applyInterest();
     }
 
     public double getMinimumBalance() {

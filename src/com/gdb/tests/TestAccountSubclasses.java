@@ -8,7 +8,7 @@ public class TestAccountSubclasses {
         System.out.println("=== Activity 8: Polymorphism Test ===");
 
         // Test 1: SavingsAccount minimum balance check
-        Account sa = new SavingsAccount(10000.0);
+        AbstractAccount sa = new SavingsAccount(10000.0);
         sa.setPin(1234);
         try {
             sa.withdraw(9500.0, 1234);
@@ -20,7 +20,7 @@ public class TestAccountSubclasses {
         }
 
         // Test 2: CurrentAccount with Overdraft
-        Account ca = new CurrentAccount(5000.0);
+        AbstractAccount ca = new CurrentAccount(5000.0);
         ca.setPin(1234);
         try {
             ca.withdraw(10000.0, 1234);
@@ -40,7 +40,7 @@ public class TestAccountSubclasses {
         }
 
         // Test 4: FixedDepositAccount premature withdrawal
-        Account fda = new FixedDepositAccount(50000.0);
+        AbstractAccount fda = new FixedDepositAccount(50000.0);
         fda.setPin(1234);
         try {
             fda.withdraw(5000.0, 1234);
